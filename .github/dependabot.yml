@@ -1,0 +1,12 @@
+version: 2
+updates:
+  - package-ecosystem: "npm" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "weekly"
+    registries:
+      npm-codegiik:
+        type: npm-registry
+        url: https://npm.dev.codegiik.com
+        token: ${{secrets.VERDACCIO_GITHUB_TOKEN}}
+        replaces-base: true
