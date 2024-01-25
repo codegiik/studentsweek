@@ -10,11 +10,11 @@ A simple all-in-one platform to manage your next students' week at school.
 </a>
 </div>
 
-# Authors and Contributors
+## Authors and Contributors
 
 - Coauthor: Antonio Trapanese [@hydra-yse]
 - Coauthor: Giuseppe Pascale [@pasc4le]
 
-# License 
+## License
 
 By accessing, modifying, deploying and sharing this codebase, you are agreeing to its assigned legal terms, defined in the LICENSE.md. The LICENSE.md file (and its contents) must be shared along side the codebase to whomever wants to view, access or make changes to it.
