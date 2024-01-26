@@ -1,0 +1,86 @@
+kind: pipeline
+type: docker
+name: test
+
+trigger:
+  event: [push, pull_request, tag]
+
+steps:
+  - name: npmrc generation
+    image: node:16-slim
+    environment:
+      NPM_TOKEN:
+        from_secret: npm_token
+      NPM_EMAIL:
+        from_secret: npm_email
+    commands:
+      - echo "_authToken=$NPM_TOKEN" >> .npmrc
+      - echo "email=$NPM_EMAIL" >> .npmrc
+      - echo "always-auth=true" >> .npmrc
+      - cat .npmrc
+  - name: install
+    image: node:16-slim
+    commands:
+      - npm i
+  - name: lint
+    image: node:16-slim
+    commands:
+      - npm run lint
+  - name: test
+    image: mcr.microsoft.com/playwright:latest
+    commands:
+      - npm run test
+
+---
+kind: pipeline
+type: docker
+name: publish
+
+trigger:
+  event: [tag]
+
+steps:
+  - name: npmrc generation
+    image: node:16-slim
+    environment:
+      NPM_TOKEN:
+        from_secret: npm_token
+      NPM_EMAIL:
+        from_secret: npm_email
+    commands:
+      - echo "_authToken=$NPM_TOKEN" >> .npmrc
+      - echo "email=$NPM_EMAIL" >> .npmrc
+      - echo "always-auth=true" >> .npmrc
+      - cat .npmrc
+  - name: install
+    image: node:16-slim
+    commands:
+      - npm i
+  - name: build
+    image: node:16-slim
+    commands:
+      - npm run build
+  - name: zipping up
+    image: alpine:latest
+    commands:
+      - apk add zip
+      - mkdir dist
+      - zip -r ./dist/package.zip ./package
+  - name: release
+    image: plugins/github-release
+    settings:
+      title: '@codegiik/svelte-table-editor'
+      api_key:
+        from_secret: github_release_api_key
+      files: dist/*
+  - name: publish
+    image: node:16-slim
+    environment:
+      NPM_REGISTRY:
+        from_secret: npm_registry
+    commands:
+      - cat package/package.json
+      - npm publish ./package --registry $NPM_REGISTRY
+
+depends_on:
+  - test

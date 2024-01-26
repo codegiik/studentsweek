@@ -1,0 +1,1 @@
+# @codegiik/svelte-table-editor
