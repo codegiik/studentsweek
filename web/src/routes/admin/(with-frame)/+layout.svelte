@@ -2,15 +2,8 @@
 	import Fa from 'svelte-fa';
 	import '$styles/global.css';
 	import { currentUser } from '$lib/user';
-	import { env } from '$env/dynamic/public';
 	import Collapse from '$lib/components/Collapse.svelte';
-	import {
-		faBook,
-		faDoorClosed,
-		faDoorOpen,
-		faHome,
-		faUsers
-	} from '@fortawesome/free-solid-svg-icons';
+	import { faBook, faDoorOpen, faHome, faUsers } from '@fortawesome/free-solid-svg-icons';
 	import { goto } from '$app/navigation';
 	import toast from 'svelte-french-toast';
 	import { getDefaultPropic } from '$lib/utils';

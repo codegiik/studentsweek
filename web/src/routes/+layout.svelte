@@ -13,7 +13,7 @@
 
 	onMount(() => {
 		fetchAndActivate(remoteConfig as RemoteConfig)
-			.then((...data) => console.log('Remote Config Activated!'))
+			.then(() => console.log('Remote Config Activated!'))
 			.catch((e) => console.log('err', e));
 	});
 </script>
