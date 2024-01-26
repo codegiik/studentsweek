@@ -1,51 +1,21 @@
-version: '3.9'
+version: "3.8"
 
 services:
   frontend:
     image: registry.gitlab.com/codegiik/studentsweek:latest
-    build: ./
-    environment:
-      - PUBLIC_FIREBASE_API_KEY
-      - PUBLIC_FIREBASE_AUTH_DOMAIN
-      - PUBLIC_FIREBASE_PROJECT_ID
-      - PUBLIC_FIREBASE_STORAGE_BUCKET
-      - PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-      - PUBLIC_FIREBASE_APP_ID
-      - PUBLIC_FIREBASE_MEASUREMENT_ID
-      - PUBLIC_MAINTENANCE
-      - SECRET_STRIPE_ENDPOINT_SECRET
-      - SECRET_IMGBB_API_KEY
-      - SECRET_STRAPI_API_KEY
-    networks:
-      - traefik
-    deploy:
-      labels:
-        traefik.enable: 'true'
-        traefik.http.routers.studentsweek.entrypoints: 'websecure'
-        traefik.http.routers.studentsweek.rule: 'Host(`studentsweek.codegiik.com`, `studentsweek.net`, `www.studentsweek.net`)'
-        traefik.http.routers.studentsweek.tls: 'true'
-        traefik.http.routers.studentsweek.tls.certresolver: 'production'
-        traefik.http.routers.studentsweek.service: 'studentsweek'
-        traefik.http.services.studentsweek.loadbalancer.server.port: '3000'
-      replicas: 4
-      placement:
-        constraints:
-          - node.role == worker
-      update_config:
-        parallelism: 2
-        order: start-first
-        failure_action: rollback
-        delay: 10s
-      rollback_config:
-        parallelism: 0
-        order: stop-first
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
-
-networks:
-  traefik:
-    external:
-      name: traefik_overlay
+    ports:
+      - 3000:3000
+    build:
+      context: ./
+      args:
+        - PUBLIC_FIREBASE_API_KEY=$PUBLIC_FIREBASE_API_KEY
+        - PUBLIC_MAINTENANCE=$PUBLIC_MAINTENANCE
+        - PUBLIC_FIREBASE_AUTH_DOMAIN=$PUBLIC_FIREBASE_AUTH_DOMAIN
+        - PUBLIC_FIREBASE_PROJECT_ID=$PUBLIC_FIREBASE_PROJECT_ID
+        - PUBLIC_FIREBASE_STORAGE_BUCKET=$PUBLIC_FIREBASE_STORAGE_BUCKET
+        - PUBLIC_FIREBASE_MESSAGING_SENDER_ID=$PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+        - PUBLIC_FIREBASE_APP_ID=$PUBLIC_FIREBASE_APP_ID
+        - PUBLIC_FIREBASE_MEASUREMENT_ID=$PUBLIC_FIREBASE_MEASUREMENT_ID
+        - SECRET_FIREBASE_SERVICE_KEY=$SECRET_FIREBASE_SERVICE_KEY
+    env_file: .env
+    restart: unless-stopped

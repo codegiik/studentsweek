@@ -1,11 +1,9 @@
-FROM node:current-slim AS builder
+FROM node:current-slim AS base
 
-RUN npm i -g pnpm
+FROM base AS builder
 
 WORKDIR /app
 COPY . .
-
-RUN echo $PUBLIC_FIREBASE_APP_ID
 
 ARG PUBLIC_FIREBASE_API_KEY
 ARG PUBLIC_FIREBASE_AUTH_DOMAIN
@@ -27,17 +25,24 @@ ENV PUBLIC_FIREBASE_APP_ID=$PUBLIC_FIREBASE_APP_ID
 ENV PUBLIC_FIREBASE_MEASUREMENT_ID=$PUBLIC_FIREBASE_MEASUREMENT_ID
 ENV SECRET_FIREBASE_SERVICE_KEY=$SECRET_FIREBASE_SERVICE_KEY
 
-RUN pnpm install --prefer-frozen-lockfile
+RUN apt-get update -y
+RUN apt-get install jq -y
 
-RUN pnpm build
+RUN corepack pnpm install --prefer-frozen-lockfile
 
-FROM node:current-slim
+RUN corepack pnpm --filter web build
+
+# Open Issues npm/cli#4967, pnpm/pnpm#3746 (for workspaces:*), pnpm/pnpm#881
+RUN jq 'del(.devDependencies)' web/package.json > web/package-prod.json
+
+FROM base AS runner 
 
 WORKDIR /app
-COPY --from=builder /app/build ./
-COPY --from=builder /app/package.json ./
 
-RUN npm i --omit=dev 
+COPY --from=builder /app/web/build ./
+COPY --from=builder /app/web/package-prod.json ./package.json
+
+RUN corepack pnpm i --prod 
 
 EXPOSE 3000
 
